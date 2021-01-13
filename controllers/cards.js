@@ -16,7 +16,7 @@ module.exports.createCard = (req, res, next) => {
     .then((cards) => res.json({ data: cards }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new NotFoundError('карточка не найдена');
+        throw new BadRequestError('Неверные данные');
       }
     })
     .catch(next);

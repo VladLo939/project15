@@ -30,6 +30,7 @@ const apiLimiter = rateLimit({
 const { errorLogger } = require('express-winston');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middleware/auth');
+const { errorHandler } = require('./middleware/errorhander');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const notFound = require('./routes/notFound');
@@ -41,8 +42,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
-    // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().required().pattern(new RegExp(/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/)),
+    avatar: Joi.string().required().pattern(new RegExp(/^(http|https):\/\/(([a-zA-Z0-9$\-_.+!*'(),;:&=]|%[0-9a-fA-F]{2})+@)?(((25[0-5]|2[0-4][0-9]|[0-1][0-9][0-9]|[1-9][0-9]|[0-9])(\.(25[0-5]|2[0-4][0-9]|[0-1][0-9][0-9]|[1-9][0-9]|[0-9])){3})|localhost|([a-zA-Z0-9\-\u00C0-\u017F]+\.)+([a-zA-Z]{2,}))(:[0-9]+)?(\/(([a-zA-Z0-9$\-_.+!*'(),;:@&=]|%[0-9a-fA-F]{2})*(\/([a-zA-Z0-9$\-_.+!*'(),;:@&=]|%[0-9a-fA-F]{2})*)*)?(\?([a-zA-Z0-9$\-_.+!*'(),;:@&=\\/?]|%[0-9a-fA-F]{2})*)?(\\#([a-zA-Z0-9$\-_.+!*'(),;:@&=\\/?]|%[0-9a-fA-F]{2})*)?)?$/)),
     email: Joi.string().required().email(),
     password: Joi.string().required().pattern(new RegExp(/[0-9a-zA-Z!]{8,}/)).min(8),
   }),
@@ -72,11 +72,7 @@ app.use(errorLogger);
 
 app.use(errors());
 
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res.status(statusCode).send({ message: statusCode === 500 ? 'На сервере произошла ошибка' : message });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
 });

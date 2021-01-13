@@ -1,4 +1,5 @@
-/* eslint-disable linebreak-style */
+const NotFoundError = require('../errors/notFoundError');
+
 module.exports.notFound = (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+  throw new NotFoundError('Запрашиваемый ресурс не найден');
 };
